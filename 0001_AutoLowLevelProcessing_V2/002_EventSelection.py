@@ -41,7 +41,7 @@ def NotSingleHitSelection(events):
     mask = num_hits > 1
     filtered_events = events[mask]
 
-    # 打印統計資訊
+    # 打印通過率
     original_len = len(events)
     passed_len = len(filtered_events)
     print(f'通過 NotSingleHitSelection 的事件數量： {passed_len}, 通過率 {100*(passed_len/original_len):.5f}%')
@@ -85,8 +85,8 @@ def FourLayerHitSelection(events):
     return filtered_events
 
 
-def ToTSelection(events):
-    print('\n--> ToT Selection (Awkward Version)...')
+def TOTSelection(events):
+    print('\n--> TOT Selection (Awkward Version)...')
 
     num_hits = ak.num(events['BoardID'], axis=1)
     mask = num_hits <= 8
@@ -105,11 +105,11 @@ def ToTSelection(events):
     has_L3 = ak.any(NotShowerEvents['LayerID'] == 3, axis=1)
     has_L4 = ak.any(NotShowerEvents['LayerID'] == 4, axis=1)
 
-    mask_ToT = (has_L1 & has_L2) | (has_L2 & has_L3) | (has_L3 & has_L4)
-    ToTEvents = NotShowerEvents[mask_ToT]
+    mask_TOT = (has_L1 & has_L2) | (has_L2 & has_L3) | (has_L3 & has_L4)
+    TOTEvents = NotShowerEvents[mask_TOT]
 
-    print(f'通過 ToTSelection 的事件數量： {len(ToTEvents)}, 通過率{100*(len(ToTEvents)/len(events)):.5f}%')
-    return ToTEvents
+    print(f'通過 TOTSelection 的事件數量： {len(TOTEvents)}, 通過率{100*(len(TOTEvents)/len(events)):.5f}%')
+    return TOTEvents
 
 
 
@@ -130,10 +130,9 @@ file_name = sys.argv[1]  # <--- 讀取第一個參數
 
 if __name__ == "__main__":
 
-    file = uproot.open(f"{path}{file_name}_Processed.root")  # 1. 開啟 ROOT 檔案
-    tree = file["DataTree"]                          # 取得 TTree 物件
+    file = uproot.open(f"{path}{file_name}_Processed.root")  
+    tree = file["DataTree"]                          
 
-    # 2. 把 TTree 轉成字典，每個 key 對應一個 numpy 陣列
     ak_array = tree.arrays(library="ak")
     event_dict = {field: ak_array[field] for field in ak_array.fields}
     print(type(event_dict))
@@ -147,10 +146,10 @@ if __name__ == "__main__":
     #         print(f'  {key}: {event_dict[key][i]}')
 
     
-    print('--> ToT Selection ...')
-    ToTEvents = ToTSelection(ak_array)
+    print('--> TOT Selection ...')
+    TOTEvents = TOTSelection(ak_array)
     # 轉成字典格式並存檔
-    TOTEvents_dict = {field: ToTEvents[field] for field in ToTEvents.fields}
+    TOTEvents_dict = {field: TOTEvents[field] for field in TOTEvents.fields}
 
     with uproot.recreate(f"{output_path}{file_name}_AfterTOTSelection.root") as file:
         file.mktree("DataTree", TOTEvents_dict)  # 建立一個新的 TTree，名稱為 "HitsTree" 並寫入資料

@@ -97,7 +97,7 @@ if __name__ == "__main__":
     path = '/data9/YangMingShanExperiments/YangMingHotspotResort/LowLevelProcessedData'
     # 儲存圖片路徑
     output_path = f"/data9/YangMingShanExperiments/YangMingHotspotResort/LowLevelProcessedData/DailyPlots"
-    output_pdf_name = f"{output_path}/{filename}_TOT_TEST.pdf"
+    output_pdf_name = f"{output_path}/{filename}_TOT.pdf"
 
     """"""
     try:
